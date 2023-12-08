@@ -105,7 +105,7 @@ bool is_data_valid(double num, int ch) {
     }
 }
 
-void read_num_data(double* y, int ch, int m) {
+void read_num_data(double* y, int ch) {
     do {
         printf(BLUE"Enter y: "RESET);
     } while (!is_input_valid(y, " %n%lf%c") || !is_data_valid(*y, ch));
@@ -177,6 +177,8 @@ double calc_equation(double x, double y, int ch) {
     case 2:
         res = sin(log(x)) - cos(log(x)) + y * log(x);
         break;
+    default:
+        printf(RED"Error!"RESET);
     }
     return res;
 }
@@ -191,6 +193,8 @@ double derivative(double x, double y, int ch) {
     case 2:
         res = (log(x) * cos(log(x))) - (sin(log(x))) / x + y * (1 / x + log(x));
         break;
+    default:
+        printf(RED"Error!"RESET);
     }
     return res;
 }
@@ -253,7 +257,7 @@ int main() {
         take_choice(&method, "Choose method:\n1. Bisection Method\n2. Tangents Method\n");
         print_instruction(choice, method);
         take_lim(&l_lim, &u_lim, choice, method);
-        read_num_data(&y, choice, method);
+        read_num_data(&y, choice);
 
         if (has_roots(calc_equation, l_lim, u_lim, y, choice)) {
             if (method == 1) {
