@@ -77,7 +77,7 @@ void take_choice(int* inp, const char* message) {
     } while (!is_input_valid(inp, " %n%d%c") || !is_inp_valid(*inp, 1, 2));
 }
 
-bool is_data_valid(double num, int ch, int m) {
+bool is_data_valid(double num, int ch) {
     switch (ch) {
     case 1:
         if (fabs(num) >= MIN_Y && fabs(num) <= MAX_Y) {
@@ -108,7 +108,7 @@ bool is_data_valid(double num, int ch, int m) {
 void read_num_data(double* y, int ch, int m) {
     do {
         printf(BLUE"Enter y: "RESET);
-    } while (!is_input_valid(y, " %n%lf%c") || !is_data_valid(*y, ch, m));
+    } while (!is_input_valid(y, " %n%lf%c") || !is_data_valid(*y, ch));
 }
 
 bool is_lim_valid(double lim, int ch, int m) {
