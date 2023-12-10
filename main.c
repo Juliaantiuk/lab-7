@@ -1,4 +1,3 @@
-//This is final
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdbool.h>
@@ -236,7 +235,7 @@ void solve_bisection(double (*f)(double, double, int), double a, double b, doubl
 
 }
 
-double solve_tangents(double (*f)(double, double, int), double (*f_der)(double, double, int), double b, double y, int ch) {
+void solve_tangents(double (*f)(double, double, int), double (*f_der)(double, double, int), double b, double y, int ch) {
     double x = b;
     double delta = 0;
     int iter = 0;
