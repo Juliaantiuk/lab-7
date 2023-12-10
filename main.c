@@ -1,3 +1,4 @@
+//виправлені функції валідації
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdbool.h>
@@ -51,12 +52,8 @@ bool is_esc() {
     return escChoice == ESC;
 }
 
-bool is_input_valid(void* inp_ptr, const char* format) {
-    int start_space = 0;
-    int newline = 0;
-    int result = scanf(format, &start_space, inp_ptr, &newline);
-    rewind(stdin);
-    if (start_space == 0 && result == 2 && newline == '\n') {
+bool is_input_valid(int space, int nl, int data) {
+    if (space == 0 && data == 2 && nl == '\n') {
         return true;
     }
     printf(RED"Error! Invalid input format!\n\n"RESET);
@@ -72,9 +69,14 @@ bool is_inp_valid(int num, int low_lim, int up_lim) {
 }
 
 void take_choice(int* inp, const char* message) {
+    int start_space = 0;
+    char newline = 0;
+    int result = 0;
     do {
         printf(BLUE"%s"RESET, message);
-    } while (!is_input_valid(inp, " %n%d%c") || !is_inp_valid(*inp, 1, 2));
+        result = scanf(" %n%d%c", &start_space, inp, &newline);
+        rewind(stdin);
+    } while (!is_input_valid(start_space, newline, result) || !is_inp_valid(*inp, 1, 2));
 }
 
 bool is_data_valid(double num, int ch) {
@@ -106,57 +108,67 @@ bool is_data_valid(double num, int ch) {
 }
 
 void read_num_data(double* y, int ch) {
+    int start_space = 0;
+    char newline = 0;
+    int result = 0;
     do {
         printf(BLUE"Enter y: "RESET);
-    } while (!is_input_valid(y, " %n%lf%c") || !is_data_valid(*y, ch));
+        result = scanf(" %n%lf%c", &start_space, y, &newline);
+        rewind(stdin);
+    } while (!is_input_valid(start_space, newline, result) || !is_data_valid(*y, ch));
 }
 
 bool is_lim_valid(double lim, int ch, int m) {
+    bool isLimValid = false;
     switch (ch) {
     case 1:
         if (m == 1) {
             if (fabs(lim) >= MIN_LIM1 && fabs(lim) <= MAX_LIM) {
-                return true;
+                isLimValid = true;
             }
             else {
                 printf(RED"Invalid limit!\n"RESET);
-                return false;
             }
         }
         else if (m == 2) {
             if (fabs(lim) >= MIN_LIM2 && fabs(lim) <= MAX_LIM) {
-                return true;
+                isLimValid = true;
             }
             else {
                 printf(RED"Invalid limit!\n"RESET);
-                return false;
             }
         }
         break;
     case 2:
         if (lim >= MIN_LIM2 && lim <= MAX_LIM) {
-            return true;
+            isLimValid = true;
         }
         else {
             printf(RED"Invalid limit!\n"RESET);
-            return false;
         }
         break;
     default:
         printf(RED"An error happened!\n");
-        return  false;
     }
+    return isLimValid;
 }
 
 void take_lim(double* lim1, double* lim2, int ch, int m) {
     bool isValid = false;
+    int start_space = 0;
+    char newline = 0;
+    int result = 0;
     do {
         do {
             printf(BLUE"Enter lower limit: "RESET);
-        } while (!is_input_valid(lim1, " %n%lf%c") || !is_lim_valid(*lim1, ch, m));
+            result = scanf(" %n%lf%c", &start_space, lim1, &newline);
+            rewind(stdin);
+        } while (!is_input_valid(start_space, newline, result) || !is_lim_valid(*lim1, ch, m));
         do {
             printf(BLUE"Enter upper limit: "RESET);
-        } while (!is_input_valid(lim2, " %n%lf%c") || !is_lim_valid(*lim2, ch, m));
+            result = scanf(" %n%lf%c", &start_space, lim2, &newline);
+            rewind(stdin);
+        } while (!is_input_valid(start_space, newline, result) || !is_lim_valid(*lim2, ch, m));
         double diff = fabs(*lim2) - fabs(*lim1);
         if (*lim1 < *lim2 && fabs(diff) >= 1 && fabs(diff) <= MAX_DIFF) {
             isValid = true;
