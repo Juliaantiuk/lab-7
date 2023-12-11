@@ -11,36 +11,30 @@
 #define GREEN "\033[0;32m"
 #define ESC 27
 
-#define MAX_LIM 1e+6
-#define MIN_LIM1 1.0
-#define MIN_LIM2 1e-6
-#define MAX_Y 1e+3
-#define MIN_Y 1e-4
+#define MAX_LIM 100.0
+#define MIN_LIM 1e-2
+#define MAX_Y 50.0
+#define MIN_Y 1e-2
 #define EPS 1e-10
-#define MAX_DIFF 150
 #define MAX_ITER 100
+#define OFFSET 0.5
 
 void print_greeting() {
     printf(BLUE"Hello, this is a calculator for a certain type of equations\n"RESET);
     printf(BLUE"You'll have to choose an equation, a method, enter limits and an additional value\n"RESET);
-    printf(BLUE"The upper limit must be greater than the lower limit and the difference must be >= 1 and <= %d\n"RESET, MAX_DIFF);
+    printf(BLUE"The upper limit must be greater than the lower limit\n"RESET);
 }
 
-void print_instruction(int ch, int m) {
+void print_instruction(int ch) {
     if (ch == 1) {
         printf(BLUE"For this equation the domain is {x є R: x != 0}\n"RESET);
-        if (m == 1) {
-            printf(BLUE"The module of the limits must be between %.lf and %.e\n"RESET, MIN_LIM1, MAX_LIM);
-        }
-        else if (m == 2) {
-            printf(BLUE"The module of the limits must be between %.e and %.e\n"RESET, MIN_LIM2, MAX_LIM);
-        }
-        printf(BLUE"The module of y must be between %.e and %.e\n\n"RESET, MIN_Y, MAX_Y);
+        printf(BLUE"The module of the limits must be between %.2lf and %.2lf\n"RESET, MIN_LIM, MAX_LIM);
+        printf(BLUE"The module of y must be between %.2lf and %.2lf\n\n"RESET, MIN_Y, MAX_Y);
     }
     else if (ch == 2) {
         printf(BLUE"For this equation the domain is {x є R: x > 0}\n"RESET);
-        printf(BLUE"The value of the limits must be between %.e and %.e\n"RESET, MIN_LIM2, MAX_LIM);
-        printf(BLUE"The module of y must be between %.e and %.e\n\n"RESET, MIN_Y, MAX_Y);
+        printf(BLUE"The value of the limits must be between %.2lf and %.2lf\n"RESET, MIN_LIM, MAX_LIM);
+        printf(BLUE"The module of y must be between %.2lf and %.2lf\n\n"RESET, MIN_Y, MAX_Y);
     }
 }
 
@@ -111,29 +105,19 @@ void read_num_data(double* y, int ch) {
     } while (!is_input_valid(y, " %n%lf%c") || !is_data_valid(*y, ch));
 }
 
-bool is_lim_valid(double lim, int ch, int m) {
+bool is_lim_valid(double lim, int ch) {
     bool isLimValid = false;
     switch (ch) {
     case 1:
-        if (m == 1) {
-            if (fabs(lim) >= MIN_LIM1 && fabs(lim) <= MAX_LIM) {
-                isLimValid = true;
-            }
-            else {
-                printf(RED"Invalid limit!\n"RESET);
-            }
+        if (fabs(lim) >= MIN_LIM && fabs(lim) <= MAX_LIM) {
+            isLimValid = true;
         }
-        else if (m == 2) {
-            if (fabs(lim) >= MIN_LIM2 && fabs(lim) <= MAX_LIM) {
-                isLimValid = true;
-            }
-            else {
-                printf(RED"Invalid limit!\n"RESET);
-            }
+        else {
+            printf(RED"Invalid limit!\n"RESET);
         }
         break;
     case 2:
-        if (lim >= MIN_LIM2 && lim <= MAX_LIM) {
+        if (lim >= MIN_LIM && lim <= MAX_LIM) {
             isLimValid = true;
         }
         else {
@@ -151,16 +135,15 @@ void take_lim(double* lim1, double* lim2, int ch, int m) {
     do {
         do {
             printf(BLUE"Enter lower limit: "RESET);
-        } while (!is_input_valid(lim1, " %n%lf%c") || !is_lim_valid(*lim1, ch, m));
+        } while (!is_input_valid(lim1, " %n%lf%c") || !is_lim_valid(*lim1, ch));
         do {
             printf(BLUE"Enter upper limit: "RESET);
-        } while (!is_input_valid(lim2, " %n%lf%c") || !is_lim_valid(*lim2, ch, m));
-        double diff = (*lim2) - (*lim1);
-        if (*lim1 < *lim2 && fabs(diff) >= 1 && fabs(diff) <= MAX_DIFF) {
+        } while (!is_input_valid(lim2, " %n%lf%c") || !is_lim_valid(*lim2, ch));
+        if (*lim1 < *lim2) {
             isValid = true;
         }
         else {
-            printf(RED"Error! The uper limit must be greater than the lower limit and the difference must be >= 1 and <= %d!\n"RESET, MAX_DIFF);
+            printf(RED"Error! The uper limit must be greater than the lower limit!\n"RESET);
         }
     } while (!isValid);
 }
@@ -216,6 +199,9 @@ void solve_bisection(double (*f)(double, double, int), double a, double b, doubl
     bool is_solvable = true;
 
     do {
+        if (a < 0.5 && a > 0) {
+            a += 0.5;
+        }
         if (f(a, y, ch) * f(x, y, ch) > 0) {
             a = x;
         }
@@ -275,7 +261,7 @@ int main() {
         print_greeting();
         take_choice(&choice, "Choose equation:\n1. cos(y/x) - 2 * sin(1/x) + 1/x = 0\n2. sin(ln(x)) - cos(ln(x)) + y * ln(x) = 0\n");
         take_choice(&method, "Choose method:\n1. Bisection Method\n2. Tangents Method\n");
-        print_instruction(choice, method);
+        print_instruction(choice);
         take_lim(&l_lim, &u_lim, choice, method);
         read_num_data(&y, choice);
 
