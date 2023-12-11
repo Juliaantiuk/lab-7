@@ -99,12 +99,6 @@ bool is_data_valid(double num, int ch) {
     return isValid;
 }
 
-void read_num_data(double* y, int ch) {
-    do {
-        printf(BLUE"Enter y: "RESET);
-    } while (!is_input_valid(y, " %n%lf%c") || !is_data_valid(*y, ch));
-}
-
 bool is_lim_valid(double lim, int ch) {
     bool isLimValid = false;
     switch (ch) {
@@ -130,20 +124,31 @@ bool is_lim_valid(double lim, int ch) {
     return isLimValid;
 }
 
-void take_lim(double* lim1, double* lim2, int ch) {
+void read_num_data(double* lim1, double* lim2, double* y, int ch, int m) {
+    do {
+        printf(BLUE"Enter y: "RESET);
+    } while (!is_input_valid(y, " %n%lf%c") || !is_data_valid(*y, ch));
     bool isValid = false;
     do {
-        do {
-            printf(BLUE"Enter lower limit: "RESET);
-        } while (!is_input_valid(lim1, " %n%lf%c") || !is_lim_valid(*lim1, ch));
+        if (m == 1) {
+            do {
+                printf(BLUE"Enter lower limit: "RESET);
+            } while (!is_input_valid(lim1, " %n%lf%c") || !is_lim_valid(*lim1, ch));
+        }
+
         do {
             printf(BLUE"Enter upper limit: "RESET);
         } while (!is_input_valid(lim2, " %n%lf%c") || !is_lim_valid(*lim2, ch));
-        if (*lim1 < *lim2) {
-            isValid = true;
+        if (m == 1) {
+            if (*lim1 < *lim2) {
+                isValid = true;
+            }
+            else {
+                printf(RED"Error! The uper limit must be greater than the lower limit!\n"RESET);
+            }
         }
         else {
-            printf(RED"Error! The uper limit must be greater than the lower limit!\n"RESET);
+            isValid = true;
         }
     } while (!isValid);
 }
@@ -262,8 +267,7 @@ int main() {
         take_choice(&choice, "Choose equation:\n1. cos(y/x) - 2 * sin(1/x) + 1/x = 0\n2. sin(ln(x)) - cos(ln(x)) + y * ln(x) = 0\n");
         take_choice(&method, "Choose method:\n1. Bisection Method\n2. Tangents Method\n");
         print_instruction(choice);
-        take_lim(&l_lim, &u_lim, choice);
-        read_num_data(&y, choice);
+        read_num_data(&l_lim, &u_lim, &y, choice, method);
 
         if (has_roots(calc_equation, l_lim, u_lim, y, choice)) {
             if (method == 1) {
