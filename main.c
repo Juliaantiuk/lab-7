@@ -130,7 +130,7 @@ bool is_lim_valid(double lim, int ch) {
     return isLimValid;
 }
 
-void take_lim(double* lim1, double* lim2, int ch, int m) {
+void take_lim(double* lim1, double* lim2, int ch) {
     bool isValid = false;
     do {
         do {
@@ -262,7 +262,7 @@ int main() {
         take_choice(&choice, "Choose equation:\n1. cos(y/x) - 2 * sin(1/x) + 1/x = 0\n2. sin(ln(x)) - cos(ln(x)) + y * ln(x) = 0\n");
         take_choice(&method, "Choose method:\n1. Bisection Method\n2. Tangents Method\n");
         print_instruction(choice);
-        take_lim(&l_lim, &u_lim, choice, method);
+        take_lim(&l_lim, &u_lim, choice);
         read_num_data(&y, choice);
 
         if (has_roots(calc_equation, l_lim, u_lim, y, choice)) {
