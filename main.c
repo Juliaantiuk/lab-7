@@ -12,12 +12,14 @@
 #define ESC 27
 
 #define MAX_LIM 100.0
+#define MAX_LIM2 10.0
 #define MIN_LIM 1e-2
 #define MAX_Y 50.0
+#define MAX_Y2 15.00
 #define MIN_Y 1e-2
 #define EPS 1e-10
-#define MAX_ITER 100
-#define OFFSET 0.5
+#define MAX_ITER 1000
+#define A_TOLERANCE 0.5
 
 void print_greeting() {
     printf(BLUE"Hello, this is a calculator for a certain type of equations\n"RESET);
@@ -29,11 +31,11 @@ void print_instruction(int ch) {
     if (ch == 1) {
         printf(BLUE"For this equation the domain is {x є R: x != 0}\n"RESET);
         printf(BLUE"The module of the limits must be between %.2lf and %.2lf\n"RESET, MIN_LIM, MAX_LIM);
-        printf(BLUE"The module of y must be between %.2lf and %.2lf\n\n"RESET, MIN_Y, MAX_Y);
+        printf(BLUE"The module of y must be between %.2lf and %.2lf\n\n"RESET, MIN_Y, MAX_Y2);
     }
     else if (ch == 2) {
         printf(BLUE"For this equation the domain is {x є R: x > 0}\n"RESET);
-        printf(BLUE"The value of the limits must be between %.2lf and %.2lf\n"RESET, MIN_LIM, MAX_LIM);
+        printf(BLUE"The value of the limits must be between %.2lf and %.2lf\n"RESET, MIN_LIM, MAX_LIM2);
         printf(BLUE"The module of y must be between %.2lf and %.2lf\n\n"RESET, MIN_Y, MAX_Y);
     }
 }
@@ -76,7 +78,7 @@ bool is_data_valid(double num, int ch) {
     bool isValid = false;
     switch (ch) {
     case 1:
-        if (fabs(num) >= MIN_Y && fabs(num) <= MAX_Y) {
+        if (fabs(num) >= MIN_Y && fabs(num) <= MAX_Y2) {
             isValid = true;
         }
         else
@@ -111,7 +113,7 @@ bool is_lim_valid(double lim, int ch) {
         }
         break;
     case 2:
-        if (lim >= MIN_LIM && lim <= MAX_LIM) {
+        if (lim >= MIN_LIM && lim <= MAX_LIM2) {
             isLimValid = true;
         }
         else {
@@ -139,16 +141,11 @@ void read_num_data(double* lim1, double* lim2, double* y, int ch, int m) {
         do {
             printf(BLUE"Enter upper limit: "RESET);
         } while (!is_input_valid(lim2, " %n%lf%c") || !is_lim_valid(*lim2, ch));
-        if (m == 1) {
-            if (*lim1 < *lim2) {
-                isValid = true;
-            }
-            else {
-                printf(RED"Error! The uper limit must be greater than the lower limit!\n"RESET);
-            }
+        if (*lim1 < *lim2) {
+            isValid = true;
         }
         else {
-            isValid = true;
+            printf(RED"Error! The uper limit must be greater than the lower limit!\n"RESET);
         }
     } while (!isValid);
 }
@@ -204,8 +201,8 @@ void solve_bisection(double (*f)(double, double, int), double a, double b, doubl
     bool is_solvable = true;
 
     do {
-        if (a < 0.5 && a > 0) {
-            a += 0.5;
+        if (a < A_TOLERANCE && a > 0) {
+            a += A_TOLERANCE;
         }
         if (f(a, y, ch) * f(x, y, ch) > 0) {
             a = x;
@@ -269,16 +266,16 @@ int main() {
         print_instruction(choice);
         read_num_data(&l_lim, &u_lim, &y, choice, method);
 
-        if (has_roots(calc_equation, l_lim, u_lim, y, choice)) {
-            if (method == 1) {
+        if (method == 1) {
+            if (has_roots(calc_equation, l_lim, u_lim, y, choice)) {
                 solve_bisection(calc_equation, l_lim, u_lim, y, choice);
             }
             else {
-                solve_tangents(calc_equation, derivative, u_lim, y, choice);
+                printf(RED"The equation does not have roots at this interval!\n"RESET);
             }
         }
-        else {
-            printf(RED"The equation does not have roots at this interval!\n"RESET);
+        else if (method == 2) {
+            solve_tangents(calc_equation, derivative, u_lim, y, choice);
         }
     } while (!is_esc());
     return 0;
